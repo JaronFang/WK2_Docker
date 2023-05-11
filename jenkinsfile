@@ -17,7 +17,7 @@ pipeline {
                     cd ../web-nginx && docker build -t jiayuanfang/mynginx:JR10 .
                     docker tag jiayuanfang/cat:JR10 jiayuanfang/cat:latest
                     docker tag jiauanfang/helloworld:JR10 jiayuanfang/helloworld:latest
-                    docker tag jiayuanfang/mynginx:JR10 jiauanfang/mynginx:latest
+                    docker tag jiayuanfang/mynginx:JR10 jiayuanfang/mynginx:latest
                     docker images
 	 	        '''
              }
