@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+
+    stages {
+         stage('Hello') {
+             steps {
+                 echo 'Hello World'
+                 sh 'pwd'
+             }
+         }
+
+         stage('Build Image') {
+             steps {
+                 sh '''
+                    cd Cat && docker build -t jiayuanfang/cat:JR10 .
+                    cd ../helloworld && docker build -t jiayuanfang/helloworld:JR10 .
+                    cd ../web-nginx && docker build -t jiayuanfang/mynginx:JR10 .
+                    docker tag jiayuanfang/cat:JR10 jiayuanfang/cat:latest
+                    docker tag jiauanfang/helloworld:JR10 jiayuanfang/helloworld:latest
+                    docker tag jiayuanfang/mynginx:JR10 jiauanfang/mynginx:latest
+                    docker images
+	 	        '''
+             }
+         }
+
+         stage('Push Image') {
+             steps {
+                 withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'PSWD', usernameVariable: 'USER')]) {
+                     sh """                        
+                         docker login -u $USER -p $PSWD
+                         for img in jiayuanfang/cat:JR10 jiayuanfang/cat:latest jiayuanfang/helloworld:JR10 jiayuanfang/helloworld:latest \
+                                jiayuanfang/mynginx:JR10 jiayuanfang/mynginx:latest; \
+                         do docker push \$img; done;
+                     """
+                 }
+
+             }
+         }
+
+        stage('Deploy Service') {
+            steps {
+                sh '''
+                    docker-compose down
+                    docker-compose up -d
+                    docker-compose ps
+                '''
+            }
+        }
+
+    }
+}
